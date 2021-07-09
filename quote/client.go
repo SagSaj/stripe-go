@@ -4,7 +4,7 @@
 //
 //
 
-// Package quote provides the /quotes/{quote}/computed_upfront_line_items APIs
+// Package quote provides the /quotes APIs
 package quote
 
 import (
@@ -14,7 +14,7 @@ import (
 	"github.com/stripe/stripe-go/v72/form"
 )
 
-// Client is used to invoke /quotes/{quote}/computed_upfront_line_items APIs.
+// Client is used to invoke /quotes APIs.
 type Client struct {
 	B          stripe.Backend
 	PDFBackend stripe.Backend
@@ -146,6 +146,47 @@ func (i *Iter) Quote() *stripe.Quote {
 // continue pagination.
 func (i *Iter) QuoteList() *stripe.QuoteList {
 	return i.List().(*stripe.QuoteList)
+}
+
+// ListComputedUpfrontLineItems is the method for the `GET /v1/quotes/{quote}/computed_upfront_line_items` API.
+func ListComputedUpfrontLineItems(params *stripe.QuoteListComputedUpfrontLineItemsParams) *LineItemIter {
+	return getC().ListComputedUpfrontLineItems(params)
+}
+
+// ListComputedUpfrontLineItems is the method for the `GET /v1/quotes/{quote}/computed_upfront_line_items` API.
+func (c Client) ListComputedUpfrontLineItems(listParams *stripe.QuoteListComputedUpfrontLineItemsParams) *LineItemIter {
+	path := stripe.FormatURLPath(
+		"/v1/quotes/%s/computed_upfront_line_items",
+		stripe.StringValue(listParams.Quote),
+	)
+	return &LineItemIter{stripe.GetIter(listParams, func(p *stripe.Params, b *form.Values) ([]interface{}, stripe.ListContainer, error) {
+		list := &stripe.LineItemList{}
+		err := c.B.CallRaw(http.MethodGet, path, c.Key, b, p, list)
+
+		ret := make([]interface{}, len(list.Data))
+		for i, v := range list.Data {
+			ret[i] = v
+		}
+
+		return ret, list, err
+	})}
+}
+
+// LineItemIter is an iterator for line items.
+type LineItemIter struct {
+	*stripe.Iter
+}
+
+// LineItem returns the line item which the iterator is currently pointing to.
+func (i *LineItemIter) LineItem() *stripe.LineItem {
+	return i.Current().(*stripe.LineItem)
+}
+
+// LineItemList returns the current list object which the iterator is
+// currently using. List objects will change as new API calls are made to
+// continue pagination.
+func (i *LineItemIter) LineItemList() *stripe.LineItemList {
+	return i.List().(*stripe.LineItemList)
 }
 
 // ListLineItems is the method for the `GET /v1/quotes/{quote}/line_items` API.
