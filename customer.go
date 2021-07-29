@@ -62,6 +62,7 @@ type CustomerParams struct {
 	TaxExempt           *string                        `form:"tax_exempt"`
 	TaxIDData           []*CustomerTaxIDDataParams     `form:"tax_id_data"`
 	Token               *string                        `form:"-"` // This doesn't seem to be used?
+	Metadata 	    map[string]interface{} 	   `form:"metadata"`
 }
 
 // CustomerInvoiceCustomFieldParams represents the parameters associated with one custom field on
